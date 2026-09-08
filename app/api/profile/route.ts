@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { ensureProfileTable, getPool } from "@/lib/db";
+import { AUTH_COOKIE, isAdminTokenValid } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 function isAuthorized(request: Request) {
-  const expected = process.env.ADMIN_API_KEY;
-  return Boolean(expected && request.headers.get("x-admin-api-key") === expected);
+  const cookie = request.headers.get("cookie") || "";
+  const token = cookie.match(new RegExp(`${AUTH_COOKIE}=([^;]+)`))?.[1];
+  return isAdminTokenValid(token);
 }
 
 export async function GET() {
@@ -20,9 +22,7 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
-  if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!isAuthorized(request)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     const body = await request.json();
@@ -38,7 +38,6 @@ export async function PUT(request: Request) {
        RETURNING updated_at`,
       [JSON.stringify(body.profile)]
     );
-
     return NextResponse.json({ ok: true, updatedAt: result.rows[0].updated_at });
   } catch (error) {
     console.error("Profile PUT failed", error);
