@@ -2,7 +2,7 @@
 html { scroll-behavior: smooth; }
 body { margin: 0; background: #08111f; color: #eef4ff; font-family: Arial, Helvetica, sans-serif; }
 a { color: inherit; text-decoration: none; }
-button { font: inherit; }
+button, input, select { font: inherit; }
 
 :root {
   --bg: #08111f;
@@ -17,10 +17,10 @@ button { font: inherit; }
 
 .container { width: min(1120px, calc(100% - 32px)); margin: auto; }
 .nav { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(18px); background: rgba(8,17,31,.78); border-bottom: 1px solid var(--line); }
-.nav-inner { height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.nav-inner { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .brand { font-weight: 800; letter-spacing: -.02em; }
 .brand span { color: var(--accent); }
-.nav-links { display: flex; gap: 18px; color: var(--muted); font-size: 14px; }
+.nav-links { display: flex; gap: 16px; color: var(--muted); font-size: 13px; overflow-x: auto; white-space: nowrap; }
 .nav-links a:hover { color: var(--text); }
 
 .hero { padding: 88px 0 64px; }
@@ -50,13 +50,49 @@ h2 { margin: 0; font-size: 32px; letter-spacing: -.03em; }
 .skill strong { display: block; margin-bottom: 7px; }
 .skill span { color: var(--muted); font-size: 14px; line-height: 1.6; }
 
+.prep-card { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.prep-card p { margin-bottom: 0; }
+
+.interview-hero { padding-bottom: 48px; }
+.stats { display: grid; grid-template-columns: repeat(3, 160px); gap: 12px; margin-top: 32px; }
+.stat { padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.03); }
+.stat strong { display: block; font-size: 25px; }
+.stat span { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; }
+.interview-controls { display: grid; gap: 14px; margin-bottom: 24px; }
+.interview-controls input { width: 100%; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--text); outline: none; }
+.interview-controls input:focus { border-color: var(--accent); }
+.filters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.filter { flex: 0 0 auto; padding: 9px 13px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--muted); cursor: pointer; }
+.filter.active { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 700; }
+.question-list { display: grid; gap: 16px; }
+.question-card { padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(180deg, rgba(17,34,58,.9), rgba(13,26,45,.9)); }
+.question-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.status { color: var(--muted); font-size: 12px; }
+.status.learning { color: #fbbf24; }
+.status.confident { color: #86efac; }
+.question-card h3 { margin: 16px 0; font-size: 22px; line-height: 1.35; }
+.key-points { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.key-points strong { width: 100%; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.key-points span { padding: 6px 9px; border-radius: 8px; background: rgba(255,255,255,.04); color: #cbd8eb; font-size: 12px; }
+.answer { margin-top: 18px; padding: 17px; border-left: 2px solid var(--accent); border-radius: 0 12px 12px 0; background: rgba(103,232,249,.04); }
+.answer strong { font-size: 13px; }
+.answer p { margin-bottom: 0; color: #d5e0ef; line-height: 1.7; }
+.question-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+.question-actions select { min-width: 145px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--text); }
+.empty { text-align: center; color: var(--muted); }
+
 .footer { padding: 40px 0 60px; color: var(--muted); font-size: 14px; }
 
 @media (max-width: 760px) {
-  .nav-inner { height: 60px; }
+  .container { width: min(100% - 24px, 1120px); }
+  .nav-inner { min-height: 60px; }
   .nav-links { display: none; }
   .hero { padding: 64px 0 48px; }
   .grid, .skill-grid { grid-template-columns: 1fr; }
   .section { padding: 44px 0; }
   h1 { font-size: clamp(42px, 15vw, 64px); }
+  .stats { grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .stat { padding: 12px; }
+  .prep-card { align-items: flex-start; flex-direction: column; }
+  .question-card { padding: 18px; }
 }
