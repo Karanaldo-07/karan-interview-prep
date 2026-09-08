@@ -4,48 +4,122 @@ import { useEffect, useState } from "react";
 import { profile as initialProfile } from "@/data/profile";
 
 type Profile = typeof initialProfile;
+type Experience = Profile["experience"][number];
+type Project = Profile["projects"][number];
+
+const splitLines = (value: string) => value.split(/\n/).map((x) => x.trim()).filter(Boolean);
+const splitComma = (value: string) => value.split(",").map((x) => x.trim()).filter(Boolean);
+
+function cloneProfile(): Profile {
+  return JSON.parse(JSON.stringify(initialProfile));
+}
 
 export default function AdminPage() {
-  const [text, setText] = useState("");
+  const [profile, setProfile] = useState<Profile>(cloneProfile());
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     const saved = localStorage.getItem("karan-profile");
-    setText(saved || JSON.stringify(initialProfile, null, 2));
+    if (saved) {
+      try { setProfile(JSON.parse(saved) as Profile); } catch { setProfile(cloneProfile()); }
+    }
   }, []);
 
-  function save() {
-    try {
-      const parsed = JSON.parse(text) as Profile;
-      localStorage.setItem("karan-profile", JSON.stringify(parsed));
-      setMessage("Saved on this device. Refresh the portfolio to see the changes.");
-    } catch {
-      setMessage("The data is not valid JSON. Please fix it and try again.");
-    }
-  }
+  const update = <K extends keyof Profile>(key: K, value: Profile[K]) => {
+    setProfile((old) => ({ ...old, [key]: value }));
+  };
 
-  function reset() {
+  const save = () => {
+    localStorage.setItem("karan-profile", JSON.stringify(profile));
+    setMessage("Saved successfully on this device. The portfolio will use these changes immediately.");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const reset = () => {
+    const fresh = cloneProfile();
     localStorage.removeItem("karan-profile");
-    setText(JSON.stringify(initialProfile, null, 2));
-    setMessage("Reset to the resume-based default data.");
-  }
+    setProfile(fresh);
+    setMessage("Reset to the original resume-based content.");
+  };
+
+  const addExperience = () => update("experience", [...profile.experience, { role: "New role", company: "Company", period: "Period", bullets: ["Responsibility or achievement"], skills: ["Skill"] }]);
+  const deleteExperience = (index: number) => update("experience", profile.experience.filter((_, i) => i !== index));
+  const addProject = () => update("projects", [...profile.projects, { title: "New project", description: "Project description", bullets: ["What you built"], skills: ["Technology"] }]);
+  const deleteProject = (index: number) => update("projects", profile.projects.filter((_, i) => i !== index));
 
   return (
-    <main className="container" style={{ padding: "50px 0" }}>
-      <a href="/" style={{ color: "var(--accent)" }}>← Back to portfolio</a>
-      <div style={{ margin: "30px 0" }}>
-        <div className="eyebrow">Content editor</div>
-        <h1 style={{ fontSize: "clamp(38px, 6vw, 60px)" }}>Update your profile</h1>
-        <p style={{ color: "var(--muted)", maxWidth: 760, lineHeight: 1.7 }}>
-          This first editor lets you update projects, internships, skills, certifications and other profile data without changing the page code. Changes are currently stored in this browser only; the next stage will add secure cross-device storage and proper add/edit/delete forms.
-        </p>
-      </div>
-      <textarea value={text} onChange={(e) => setText(e.target.value)} spellCheck={false} style={{ width: "100%", minHeight: 600, padding: 18, borderRadius: 16, border: "1px solid var(--line)", background: "#050c16", color: "#dbeafe", fontFamily: "monospace", fontSize: 13, lineHeight: 1.55 }} />
-      <div className="actions">
-        <button className="btn primary" onClick={save}>Save changes</button>
-        <button className="btn" onClick={reset}>Reset defaults</button>
-      </div>
-      {message && <p style={{ color: "var(--accent)", marginTop: 15 }}>{message}</p>}
+    <main>
+      <nav className="nav"><div className="container nav-inner">
+        <a className="brand" href="/">KB<span>.</span></a>
+        <div className="nav-links"><a href="/">Portfolio</a><a href="/interview">Interview Prep</a><a href="#profile">Profile</a><a href="#experience">Experience</a><a href="#projects">Projects</a></div>
+      </div></nav>
+
+      <section className="hero admin-hero"><div className="container">
+        <div className="eyebrow">Resume & Profile Manager</div>
+        <h1>Edit <span className="gradient">without coding.</span></h1>
+        <p>Manage your profile, internships, projects, skills and certifications from one mobile-friendly editor. Save once and the public portfolio reads the saved profile from this browser.</p>
+        <div className="actions"><button className="btn primary" onClick={save}>Save all changes</button><button className="btn" onClick={reset}>Reset defaults</button><a className="btn" href="/">Preview portfolio</a></div>
+        {message && <p className="save-message">✓ {message}</p>}
+      </div></section>
+
+      <section className="section" id="profile"><div className="container">
+        <div className="section-head"><div><h2>Profile</h2><p>Core information shown at the top of your portfolio.</p></div></div>
+        <div className="form-grid">
+          <label>Name<input value={profile.name} onChange={(e) => update("name", e.target.value)} /></label>
+          <label>Headline<input value={profile.headline} onChange={(e) => update("headline", e.target.value)} /></label>
+          <label className="wide">Introduction<textarea value={profile.intro} onChange={(e) => update("intro", e.target.value)} /></label>
+          <label className="wide">Education<textarea value={profile.education} onChange={(e) => update("education", e.target.value)} /></label>
+        </div>
+      </div></section>
+
+      <section className="section" id="experience"><div className="container">
+        <div className="section-head"><div><h2>Experience</h2><p>Add, edit or delete internships and other experience.</p></div><button className="btn primary" onClick={addExperience}>+ Add experience</button></div>
+        <div className="editor-list">
+          {profile.experience.map((item: Experience, index) => <article className="editor-card" key={index}>
+            <div className="editor-card-head"><strong>Experience {index + 1}</strong><button className="danger" onClick={() => deleteExperience(index)}>Delete</button></div>
+            <div className="form-grid">
+              <label>Role<input value={item.role} onChange={(e) => { const next = [...profile.experience]; next[index] = { ...item, role: e.target.value }; update("experience", next); }} /></label>
+              <label>Company<input value={item.company} onChange={(e) => { const next = [...profile.experience]; next[index] = { ...item, company: e.target.value }; update("experience", next); }} /></label>
+              <label>Period<input value={item.period} onChange={(e) => { const next = [...profile.experience]; next[index] = { ...item, period: e.target.value }; update("experience", next); }} /></label>
+              <label>Skills <span className="hint">comma separated</span><input value={item.skills.join(", ")} onChange={(e) => { const next = [...profile.experience]; next[index] = { ...item, skills: splitComma(e.target.value) }; update("experience", next); }} /></label>
+              <label className="wide">Responsibilities / achievements <span className="hint">one item per line</span><textarea value={item.bullets.join("\n")} onChange={(e) => { const next = [...profile.experience]; next[index] = { ...item, bullets: splitLines(e.target.value) }; update("experience", next); }} /></label>
+            </div>
+          </article>)}
+        </div>
+      </div></section>
+
+      <section className="section" id="projects"><div className="container">
+        <div className="section-head"><div><h2>Projects</h2><p>Keep your portfolio and interview project stories up to date.</p></div><button className="btn primary" onClick={addProject}>+ Add project</button></div>
+        <div className="editor-list">
+          {profile.projects.map((item: Project, index) => <article className="editor-card" key={index}>
+            <div className="editor-card-head"><strong>Project {index + 1}</strong><button className="danger" onClick={() => deleteProject(index)}>Delete</button></div>
+            <div className="form-grid">
+              <label className="wide">Title<input value={item.title} onChange={(e) => { const next = [...profile.projects]; next[index] = { ...item, title: e.target.value }; update("projects", next); }} /></label>
+              <label className="wide">Description<textarea value={item.description} onChange={(e) => { const next = [...profile.projects]; next[index] = { ...item, description: e.target.value }; update("projects", next); }} /></label>
+              <label className="wide">Project points <span className="hint">one item per line</span><textarea value={item.bullets.join("\n")} onChange={(e) => { const next = [...profile.projects]; next[index] = { ...item, bullets: splitLines(e.target.value) }; update("projects", next); }} /></label>
+              <label className="wide">Technologies <span className="hint">comma separated</span><input value={item.skills.join(", ")} onChange={(e) => { const next = [...profile.projects]; next[index] = { ...item, skills: splitComma(e.target.value) }; update("projects", next); }} /></label>
+            </div>
+          </article>)}
+        </div>
+      </div></section>
+
+      <section className="section"><div className="container">
+        <div className="section-head"><div><h2>Skills</h2><p>Edit each skill group. Separate skills with commas.</p></div></div>
+        <div className="form-grid">
+          {Object.entries(profile.skills).map(([group, skills]) => <label key={group}>{group}<input value={skills.join(", ")} onChange={(e) => update("skills", { ...profile.skills, [group]: splitComma(e.target.value) })} /></label>)}
+        </div>
+      </div></section>
+
+      <section className="section"><div className="container">
+        <div className="section-head"><div><h2>Certifications & publication</h2><p>One certification or achievement per line.</p></div></div>
+        <div className="form-grid">
+          <label className="wide">Certifications<textarea value={profile.certifications.join("\n")} onChange={(e) => update("certifications", splitLines(e.target.value))} /></label>
+          <label className="wide">Research publication<textarea value={profile.publication} onChange={(e) => update("publication", e.target.value)} /></label>
+        </div>
+        <div className="actions"><button className="btn primary" onClick={save}>Save all changes</button><button className="btn" onClick={reset}>Reset defaults</button></div>
+      </div></section>
+
+      <footer className="footer"><div className="container">Resume & Profile Manager · Browser storage is used in this stage.</div></footer>
     </main>
   );
 }
