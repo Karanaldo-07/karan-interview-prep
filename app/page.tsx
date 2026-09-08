@@ -21,7 +21,7 @@ export default function Home() {
         <div className="container nav-inner">
           <a className="brand" href="#top">KB<span>.</span></a>
           <div className="nav-links">
-            <a href="#about">About</a><a href="#experience">Experience</a><a href="#projects">Projects</a><a href="#skills">Skills</a><a href="#certifications">Certifications</a><a href="/admin">Edit</a>
+            <a href="#about">About</a><a href="#experience">Experience</a><a href="#projects">Projects</a><a href="#skills">Skills</a><a href="#certifications">Certifications</a><a href="/interview">Interview Prep</a><a href="/admin">Edit</a>
           </div>
         </div>
       </nav>
@@ -33,7 +33,7 @@ export default function Home() {
           <p><strong>{profile.headline}</strong><br />{profile.intro}</p>
           <div className="actions">
             <a className="btn primary" href="#projects">View projects</a>
-            <a className="btn" href="#experience">My experience</a>
+            <a className="btn" href="/interview">Start interview prep</a>
             <a className="btn" href="/admin">Open editor</a>
           </div>
         </div>
@@ -64,7 +64,9 @@ export default function Home() {
         <div className="grid">{profile.certifications.map((c) => <div className="card" key={c}><h3>{c}</h3></div>)}<div className="card"><div className="meta">Research</div><h3>{profile.publication}</h3></div></div>
       </div></section>
 
-      <footer className="footer"><div className="container">© {new Date().getFullYear()} {profile.name} · Built with Next.js · Interview preparation features coming next.</div></footer>
+      <section className="section prep-banner"><div className="container"><div className="card prep-card"><div><div className="meta">Next module</div><h2>Interview Preparation</h2><p>Practice resume-based HR, technical, project, internship and certification questions.</p></div><a className="btn primary" href="/interview">Open question bank →</a></div></div></section>
+
+      <footer className="footer"><div className="container">© {new Date().getFullYear()} {profile.name} · Built with Next.js</div></footer>
     </main>
   );
 }
