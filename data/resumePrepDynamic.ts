@@ -1,5 +1,7 @@
 import { resumePrep, type PrepQuestion, type PrepSection } from "@/data/resumePrep";
-import type { Profile } from "@/data/profile";
+import type { profile as profileValue } from "@/data/profile";
+
+type Profile = typeof profileValue;
 
 const unique = (items: string[]) => Array.from(new Set(items.filter(Boolean)));
 
@@ -80,10 +82,7 @@ function projectQuestions(profile: Profile): PrepQuestion[] {
 }
 
 function achievementQuestions(profile: Profile): PrepQuestion[] {
-  const items = unique([
-    profile.publication,
-    ...profile.certifications,
-  ]);
+  const items = unique([profile.publication, ...profile.certifications]);
 
   return items.map((item) => ({
     question: `Tell me about this achievement or certification: ${item}.`,
@@ -95,11 +94,7 @@ function achievementQuestions(profile: Profile): PrepQuestion[] {
   }));
 }
 
-/**
- * Keeps interview-preparation content synchronized with the latest saved resume.
- * The detailed hand-written question bank remains intact, while newly added or
- * edited resume items automatically receive interview questions and answers.
- */
+/** Keeps interview-preparation content synchronized with the latest saved resume. */
 export function getResumePrepForProfile(profile: Profile): Record<string, PrepSection> {
   const sections = cloneSections();
 
@@ -125,10 +120,7 @@ export function getResumePrepForProfile(profile: Profile): Record<string, PrepSe
   );
   sections.projects.questions = [...sections.projects.questions, ...projectQuestions(profile)];
 
-  sections.achievements.keyPoints = unique([
-    profile.publication,
-    ...profile.certifications,
-  ]);
+  sections.achievements.keyPoints = unique([profile.publication, ...profile.certifications]);
   sections.achievements.questions = [...sections.achievements.questions, ...achievementQuestions(profile)];
 
   return sections;
