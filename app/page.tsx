@@ -5,6 +5,14 @@ import { profile as initialProfile } from "@/data/profile";
 
 type Profile = typeof initialProfile;
 
+const sectionLinks = {
+  education: "/resume/education",
+  skills: "/resume/skills",
+  experience: "/resume/experience",
+  projects: "/resume/projects",
+  certifications: "/resume/achievements",
+};
+
 export default function Home() {
   const [profile, setProfile] = useState<Profile>(initialProfile);
 
@@ -21,11 +29,11 @@ export default function Home() {
         <div className="container nav-inner">
           <a className="brand" href="#top">KARAN BHISE</a>
           <div className="nav-links">
-            <a href="#education">Education</a>
-            <a href="#skills">Skills</a>
-            <a href="#experience">Experience</a>
-            <a href="#projects">Projects</a>
-            <a href="#certifications">Certifications</a>
+            <a href={sectionLinks.education}>Education</a>
+            <a href={sectionLinks.skills}>Skills</a>
+            <a href={sectionLinks.experience}>Experience</a>
+            <a href={sectionLinks.projects}>Projects</a>
+            <a href={sectionLinks.certifications}>Achievements</a>
             <a href="/interview">Interview Prep</a>
             <a href="/admin">Edit</a>
           </div>
@@ -46,8 +54,11 @@ export default function Home() {
             <p className="resume-title">{profile.headline}</p>
           </header>
 
-          <section className="resume-section" id="education">
-            <h2>EDUCATION</h2>
+          <section className="resume-section resume-clickable" id="education">
+            <a className="resume-section-link" href={sectionLinks.education}>
+              <span><h2>EDUCATION</h2><span className="resume-learn-more">Interview preparation →</span></span>
+              <span className="section-arrow">↗</span>
+            </a>
             <div className="resume-row">
               <div>
                 <h3>{profile.education}</h3>
@@ -57,8 +68,11 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="resume-section" id="skills">
-            <h2>TECHNICAL SKILLS</h2>
+          <section className="resume-section resume-clickable" id="skills">
+            <a className="resume-section-link" href={sectionLinks.skills}>
+              <span><h2>TECHNICAL SKILLS</h2><span className="resume-learn-more">Interview preparation →</span></span>
+              <span className="section-arrow">↗</span>
+            </a>
             <div className="resume-skills">
               {Object.entries(profile.skills).map(([group, skills]) => (
                 <p key={group}><strong>{group}:</strong> {skills.join(", ")}</p>
@@ -66,8 +80,11 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="resume-section" id="experience">
-            <h2>PROFESSIONAL EXPERIENCE</h2>
+          <section className="resume-section resume-clickable" id="experience">
+            <a className="resume-section-link" href={sectionLinks.experience}>
+              <span><h2>PROFESSIONAL EXPERIENCE</h2><span className="resume-learn-more">Interview preparation →</span></span>
+              <span className="section-arrow">↗</span>
+            </a>
             {profile.experience.map((item) => (
               <article className="resume-entry" key={`${item.company}-${item.role}`}>
                 <div className="resume-row">
@@ -82,8 +99,11 @@ export default function Home() {
             ))}
           </section>
 
-          <section className="resume-section" id="projects">
-            <h2>PROJECTS</h2>
+          <section className="resume-section resume-clickable" id="projects">
+            <a className="resume-section-link" href={sectionLinks.projects}>
+              <span><h2>PROJECTS</h2><span className="resume-learn-more">Interview preparation →</span></span>
+              <span className="section-arrow">↗</span>
+            </a>
             {profile.projects.map((item) => (
               <article className="resume-entry" key={item.title}>
                 <h3>{item.title}</h3>
@@ -92,8 +112,11 @@ export default function Home() {
             ))}
           </section>
 
-          <section className="resume-section" id="certifications">
-            <h2>ACHIEVEMENTS &amp; CERTIFICATIONS</h2>
+          <section className="resume-section resume-clickable" id="certifications">
+            <a className="resume-section-link" href={sectionLinks.certifications}>
+              <span><h2>ACHIEVEMENTS &amp; CERTIFICATIONS</h2><span className="resume-learn-more">Interview preparation →</span></span>
+              <span className="section-arrow">↗</span>
+            </a>
             <ul className="resume-list">
               <li>{profile.publication}</li>
               {profile.certifications.map((item) => <li key={item}>{item}</li>)}
