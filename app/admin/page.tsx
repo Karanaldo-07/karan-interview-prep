@@ -45,15 +45,20 @@ export default function AdminPage() {
 
   const save = async () => {
     localStorage.setItem("karan-profile", JSON.stringify(profile));
-    if (!loggedIn) { setMessage("Saved on this device. Sign in above to save to the cloud."); return; }
+    if (!loggedIn) {
+      localStorage.setItem("karan-profile-local-pending", "1");
+      setMessage("Saved on this device. Sign in above to save to the cloud.");
+      return;
+    }
     const response = await fetch("/api/profile", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ profile }) });
     const data = await response.json();
+    if (response.ok) localStorage.removeItem("karan-profile-local-pending");
     setMessage(response.ok ? "Saved to the cloud and this device." : (data.error || "Cloud save failed."));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const logout = async () => { await fetch("/api/auth/logout", { method: "POST" }); setLoggedIn(false); setMessage("Signed out. Local editing remains available."); };
-  const reset = () => { const fresh = cloneProfile(); localStorage.removeItem("karan-profile"); setProfile(fresh); setMessage("Reset to the original resume-based content."); };
+  const reset = () => { const fresh = cloneProfile(); localStorage.removeItem("karan-profile"); localStorage.removeItem("karan-profile-local-pending"); setProfile(fresh); setMessage("Reset to the original resume-based content."); };
   const addExperience = () => update("experience", [...profile.experience, { role: "New role", company: "Company", period: "Period", bullets: ["Responsibility or achievement"], skills: ["Skill"] }]);
   const deleteExperience = (index: number) => update("experience", profile.experience.filter((_, i) => i !== index));
   const addProject = () => update("projects", [...profile.projects, { title: "New project", description: "Project description", bullets: ["What you built"], skills: ["Technology"] }]);
