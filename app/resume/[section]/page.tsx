@@ -1,5 +1,9 @@
 import { notFound } from "next/navigation";
 import { resumePrep } from "@/data/resumePrep";
+import { getResumePrepForProfile } from "@/data/resumePrepDynamic";
+import { getCurrentProfile } from "@/lib/profile";
+
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return Object.keys(resumePrep).map((section) => ({ section }));
@@ -18,7 +22,8 @@ const researchSources = [
 
 export default async function ResumePrepPage({ params }: PageProps) {
   const { section } = await params;
-  const content = resumePrep[section];
+  const profile = await getCurrentProfile();
+  const content = getResumePrepForProfile(profile)[section];
 
   if (!content) notFound();
 
@@ -44,6 +49,7 @@ export default async function ResumePrepPage({ params }: PageProps) {
           <p className="eyebrow">Resume Section · Interview Preparation</p>
           <h1>{content.title}</h1>
           <p className="detail-subtitle">{content.subtitle}</p>
+          <p className="detail-live-note">✓ Synced with your latest saved resume</p>
         </div>
       </section>
 
@@ -54,7 +60,7 @@ export default async function ResumePrepPage({ params }: PageProps) {
               <div className="card sticky-card">
                 <div className="meta">How to present it</div>
                 <p>{content.howToPresent}</p>
-                <div className="meta prep-meta-gap">Your resume evidence</div>
+                <div className="meta prep-meta-gap">Your current resume evidence</div>
                 <ul className="evidence-list">
                   {content.keyPoints.map((point) => <li key={point}>{point}</li>)}
                 </ul>
@@ -65,12 +71,12 @@ export default async function ResumePrepPage({ params }: PageProps) {
               <div className="section-head detail-head">
                 <div>
                   <h2>Questions &amp; Model Answers</h2>
-                  <p>{content.questions.length} questions prepared for this section.</p>
+                  <p>{content.questions.length} questions prepared from your current resume plus the detailed interview bank.</p>
                 </div>
               </div>
 
               {content.questions.map((item, index) => (
-                <article className="prep-question" key={item.question}>
+                <article className="prep-question" key={`${item.question}-${index}`}>
                   <div className="prep-question-number">Question {index + 1}</div>
                   <h3>{item.question}</h3>
                   <div className="answer-label">How you can answer</div>
@@ -92,7 +98,7 @@ export default async function ResumePrepPage({ params }: PageProps) {
         <div className="container">
           <div className="card">
             <div className="meta">Research basis</div>
-            <p className="research-intro">Interview guidance and technical preparation were cross-checked against the sources below. Your personal answers remain grounded in the information on your resume; do not claim a metric, responsibility or technology that you did not actually use.</p>
+            <p className="research-intro">Interview guidance and technical preparation were cross-checked against the sources below. Your personal answers remain grounded in the information currently saved in your resume; do not claim a metric, responsibility or technology that you did not actually use.</p>
             <div className="research-links">
               {researchSources.map((source) => (
                 <a key={source.href} href={source.href} target="_blank" rel="noreferrer">{source.label} ↗</a>
@@ -119,7 +125,7 @@ export default async function ResumePrepPage({ params }: PageProps) {
       </section>
 
       <footer className="footer">
-        <div className="container">© {new Date().getFullYear()} Karan Bhise · Resume &amp; Interview Preparation</div>
+        <div className="container">© {new Date().getFullYear()} {profile.name} · Resume &amp; Interview Preparation</div>
       </footer>
     </main>
   );
