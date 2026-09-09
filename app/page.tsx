@@ -17,10 +17,27 @@ export default function Home() {
   const [profile, setProfile] = useState<Profile>(initialProfile);
 
   useEffect(() => {
-    const saved = localStorage.getItem("karan-profile");
-    if (saved) {
-      try { setProfile(JSON.parse(saved)); } catch { /* keep source data */ }
-    }
+    let mounted = true;
+
+    (async () => {
+      try {
+        const response = await fetch("/api/profile", { cache: "no-store" });
+        const data = await response.json();
+        if (mounted && response.ok && data.profile) {
+          setProfile(data.profile as Profile);
+          return;
+        }
+      } catch {
+        // Fall back to local editing/default data below.
+      }
+
+      const saved = localStorage.getItem("karan-profile");
+      if (mounted && saved) {
+        try { setProfile(JSON.parse(saved) as Profile); } catch { /* keep source data */ }
+      }
+    })();
+
+    return () => { mounted = false; };
   }, []);
 
   return (
